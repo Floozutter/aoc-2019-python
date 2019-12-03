@@ -1,9 +1,7 @@
 INPUTPATH = "input.txt"
 #INPUTPATH = "input-test.txt"
 
-def getdata(filepath):
-    with open(filepath) as ifile:
-        lines = ifile.read()
-    return [int(l) for l in lines.split()]
+with open(INPUTPATH) as ifile:
+    lines = ifile.read()
 
-x = getdata(INPUTPATH)
+data = [int(l) for l in lines.split()]
