@@ -67,22 +67,23 @@ print(sum(map(energy, moons)))
 
 
 moons = [Moon((d[0], d[1], d[2])) for d in data]
-def staterepr(moonlist):
-    out = ""
-    for moon in moonlist:
-        out+= ",".join(map(str, (moon.x, moon.y, moon.z))) + " "
-        out+= ",".join(map(str, (moon.vx, moon.vy, moon.vz))) + "\n"
-    return out
 
-states = set()
-i = 0
+def staterepr(moonlist):
+    moontups = []
+    for moon in moonlist:
+        moontups.append((moon.x, moon.y, moon.z,
+                         moon.vx, moon.vy, moon.vz))
+    return tuple(moontups)
+
+ini = staterepr(moons)
+
+timestep(moons)
+i = 1
 while True:
     if i % 100000 == 0:
         print(i)
-    s = staterepr(moons)
-    if s in states:
+    if staterepr(moons) == ini:
         break
-    states.add(s)
     timestep(moons)
     i += 1
 print(i)
