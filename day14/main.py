@@ -80,19 +80,40 @@ def orecount(reqdict, thing, amount):
 
 print(orecount(reqs, "FUEL", 1))
 
-input()
-bot = 400000
-top = 500000
-ore = 1000000000000
-while (bot != top):
-    mid = (bot+top) // 2
-    print(mid)
-    need = orecount(reqs, "FUEL", mid)
-    print(mid, need)
-    if need < ore:
-        bot = mid
-    elif need > ore:
-        top = mid
-    else:
-        break
-print(mid)
+def addfueluntilnotenoughore(reqdict, oreamount):
+    fuel = 1
+    reqcounter = Counter({"FUEL": 1})
+    extras = Counter()
+    def oresonly(reqcounter):
+        for k, v in reqcounter.items():
+            if k != "ORE" and v > 0:
+                return False
+        return True
+
+    while True:
+        if oresonly(reqcounter):
+            print(fuel, reqcounter["ORE"])
+            if reqcounter["ORE"] > oreamount:
+                return fuel
+            fuel += 1
+            reqcounter["FUEL"] += 1
+        newreqcounter = Counter()
+        for k, v in reqcounter.items():
+            if k == "ORE":
+                newreqcounter["ORE"] += v
+                continue
+            for i in range(v):
+                if extras[k] > 0:
+                    extras[k] -= 1
+                    continue
+                outputcount, reqs4req = reqdict[k]
+                extras[k] += outputcount-1
+                for reqreq, reqcount in reqs4req:
+                    for j in range(reqcount):
+                        if extras[reqreq] > 0:
+                            extras[reqreq] -= 1
+                        else:
+                            newreqcounter[reqreq] += 1
+        reqcounter = Counter(newreqcounter)
+
+print(addfueluntilnotenoughore(reqs, 1000000000000))
