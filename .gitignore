@@ -1,2 +1,9 @@
-# File containing session cookie to be used by loader.py
-loader/sessioncookie*
+# Byte-compiled / optimized / DLL stuff.
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Mypy stuff.
+.mypy_cache/
+.dmypy.json
+dmypy.json
