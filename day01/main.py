@@ -2,7 +2,7 @@ INPUTPATH = "input.txt"
 #INPUTPATH = "input-test.txt"
 with open(INPUTPATH) as ifile:
 	raw = ifile.read()
-masses = list(map(int, raw.strip().split()))
+masses = list(map(int, raw.split()))
 
 print(sum(mass // 3 - 2 for mass in masses))
 
