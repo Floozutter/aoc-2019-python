@@ -8,7 +8,7 @@ from operator import add, mul
 from typing import Iterable
 def run(program: Iterable[int], noun: int, verb: int) -> int:
 	m = list(program)
-	m[1], m[2] = noun, verb
+	m[1: 3] = noun, verb
 	p = 0
 	while (opcode := m[p]) != 99:
 		m[m[p + 3]] = (add if opcode == 1 else mul)(m[m[p + 1]], m[m[p + 2]])
