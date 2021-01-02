@@ -46,6 +46,14 @@ class Ico:
 		self.mem[idx] = self.cal()
 	def out(self, idx: int) -> None:
 		self.log.append(self.mem[idx])
+	def jit(self, idx: int, jdx: int) -> None:
+		if self.mem[idx]: self.ptr = self.mem[jdx]
+	def jif(self, idx: int, jdx: int) -> None:
+		if not self.mem[idx]: self.ptr = self.mem[jdx]
+	def les(self, idx: int, jdx: int, kdx: int) -> None:
+		self.mem[kdx] = int(self.mem[idx] < self.mem[jdx])
+	def equ(self, idx: int, jdx: int, kdx: int) -> None:
+		self.mem[kdx] = int(self.mem[idx] == self.mem[jdx])
 	def hal(self) -> None:
 		self.liv = False
 	ops: ClassVar[Dict[int, Callable[..., None]]] = {
@@ -53,7 +61,12 @@ class Ico:
 		 2: mul,
 		 3: inp,
 		 4: out,
+		 5: jit,
+		 6: jif,
+		 7: les,
+		 8: equ,
 		99: hal
 	}
 
 print(Ico(prg, lambda: 1).run()[-1])
+print(Ico(prg, lambda: 5).run()[-1])
