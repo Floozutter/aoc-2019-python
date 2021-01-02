@@ -15,11 +15,13 @@ class Ico:
 	liv: bool
 	ptr: int
 	mem: List[int]
+	cal: Callable[[], int]
 	log: List[int]
-	def __init__(self, prg: Iterable[int]) -> None:
+	def __init__(self, prg: Iterable[int], cal: Callable[[], int]) -> None:
 		self.liv = True
 		self.ptr = 0
 		self.mem = list(prg)
+		self.cal = cal
 		self.log = list()
 	def get(self, mde: Mde) -> int:
 		if   mde == Mde.POS: idx = self.mem[self.ptr]
@@ -32,12 +34,16 @@ class Ico:
 		mds = map(Mde, chain(map(int, reversed(str(val // 100))), repeat(0)))
 		opr = self.ops[opc]
 		opr(self, *map(self.get, islice(mds, opr.__code__.co_argcount - 1)))
+	def run(self) -> List[int]:
+		while self.liv:
+			self.ste()
+		return self.log
 	def add(self, idx: int, jdx: int, kdx: int) -> None:
 		self.mem[kdx] = self.mem[idx] + self.mem[jdx]
 	def mul(self, idx: int, jdx: int, kdx: int) -> None:
 		self.mem[kdx] = self.mem[idx] * self.mem[jdx]
 	def inp(self, idx: int) -> None:
-		self.mem[idx] = 1
+		self.mem[idx] = self.cal()
 	def out(self, idx: int) -> None:
 		self.log.append(self.mem[idx])
 	def hal(self) -> None:
@@ -50,7 +56,4 @@ class Ico:
 		99: hal
 	}
 
-ico = Ico(prg)
-while ico.liv:
-	ico.ste()
-print(ico.log[-1])
+print(Ico(prg, lambda: 1).run()[-1])
