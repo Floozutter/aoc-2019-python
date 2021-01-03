@@ -10,7 +10,7 @@ class Mde(Enum):
 	IMM = 1
 from itertools import chain, repeat, islice
 from operator import methodcaller
-from typing import Dict, Callable, List, Iterable, ClassVar
+from typing import Dict, Callable, List, Iterable, Optional, ClassVar
 class Ico:
 	liv: bool
 	ptr: int
@@ -28,11 +28,14 @@ class Ico:
 		elif mde == Mde.IMM: idx = self.ptr
 		self.ptr += 1
 		return idx
-	def ste(self) -> None:
+	def ste(self) -> int:
+		if not self.liv: return 99
 		val = self.mem[self.get(Mde.IMM)]
+		opc = val % 100
 		mds = map(Mde, chain(map(int, reversed(str(val // 100))), repeat(0)))
-		opr = self.ops[val % 100]
+		opr = self.ops[opc]
 		opr(self, *map(self.get, islice(mds, opr.__code__.co_argcount - 1)))
+		return opc
 	def run(self) -> List[int]:
 		while self.liv: self.ste()
 		return self.log
@@ -66,23 +69,46 @@ class Ico:
 		99: hal
 	}
 
-from typing import Iterable
-def thruster_signal(phase_settings: Iterable[int]) -> int:
+def thruster_signal(settings: Iterable[int]) -> int:
 	class Callback:
-		def __init__(self, first: int, second: int) -> int:
+		def __init__(self, first: int, second: int) -> None:
 			self.first = first
 			self.second = second
 			self.called = False
-		def __call__(self):
+		def __call__(self) -> int:
 			if not self.called:
 				self.called = True
 				return self.first
 			else:
 				return self.second
 	signal = 0
-	for setting in phase_settings:
-		signal = Ico(program, Callback(setting, signal)).run()[-1]
+	for s in settings:
+		signal = Ico(program, Callback(s, signal)).run()[-1]
 	return signal
 from itertools import permutations
 print(max(map(thruster_signal, permutations(range(5)))))
-	
+
+def feedback_thruster_signal(settings: Iterable[int]) -> int:
+	class Callback:
+		def __init__(self, first: int) -> None:
+			self.first = first
+			self.log = None
+			self.called = False
+		def set_log(self, log: List[int]) -> None:
+			self.log = log
+		def __call__(self) -> int:
+			if not self.called:
+				self.called = True
+				return self.first
+			elif not self.log:
+				return 0
+			else:
+				return self.log[-1]
+	icos = tuple(Ico(program, Callback(s)) for s in settings)
+	for a, b in zip(icos, icos[1:] + (icos[0],)):
+		b.cal.set_log(a.log)
+	while icos[-1].liv:
+		for ico in icos:
+			while ico.liv and ico.ste() != 4: pass
+	return icos[-1].log[-1]
+print(max(map(feedback_thruster_signal, permutations(range(5, 10)))))
