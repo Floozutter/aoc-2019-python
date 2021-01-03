@@ -9,7 +9,6 @@ class Mde(Enum):
 	POS = 0
 	IMM = 1
 from itertools import chain, repeat, islice
-from operator import methodcaller
 from typing import Dict, Callable, List, Iterable, ClassVar
 class Ico:
 	liv: bool
