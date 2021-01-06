@@ -80,28 +80,43 @@ class Ico:
 	}
 
 class Robot:
-	def __init__(self, brain: Ico) -> None:
-		self.x, self.y = 0, 0
-		self.dx, self.dy = 0, 1
-		self.painted = dict()
+	def __init__(self, brain: Ico, start_panel: int) -> None:
+		self.i, self.j = 0, 0
+		self.di, self.dj = -1, 0
+		self.panels = defaultdict(int)
+		self.panels[0, 0] = start_panel
 		self.brain = brain
 		self.index = 0
 	def __call__(self) -> int:
 		self.consume_log()
-		return self.painted.get((self.x, self.y), 0)
+		return self.panels[self.i, self.j]
 	def consume_log(self) -> None:
 		while self.index < len(self.brain.log):
 			value = self.brain.log[self.index]
-			if self.index % 2 == 0:		
-				self.painted[self.x, self.y] = value
-			else:
-				if value == 0: self.dx, self.dy = -self.dy, self.dx
-				else:          self.dx, self.dy = self.dy, -self.dx
-				self.x, self.y = self.x + self.dx, self.y + self.dy
-			self.index += 1
+			color, turn = self.brain.log[self.index: self.index + 2]
+			self.panels[self.i, self.j] = color
+			if turn == 0: self.di, self.dj = -self.dj, self.di
+			else:         self.di, self.dj = self.dj, -self.di
+			self.i, self.j = self.i + self.di, self.j + self.dj
+			self.index += 2
 
-brain = Ico(program)
-robot = Robot(brain)
-brain.cal = robot
-brain.run()
-print(len(robot.painted))
+from typing import Tuple
+def paint_hull(start_panel: int) -> Dict[Tuple[int, int], int]:
+	brain = Ico(program)
+	robot = Robot(brain, start_panel)
+	brain.cal = robot
+	brain.run()
+	return robot.panels
+
+print(len(paint_hull(0)))
+
+hull = paint_hull(1)
+indexes, jndexes = zip(*hull)
+image = "\n".join(
+	"".join(
+		"#" if hull[i, j] else " "
+		for j in range(min(jndexes), max(jndexes) + 1)
+	)
+	for i in range(min(indexes), max(indexes) + 1)
+)
+print(image)
