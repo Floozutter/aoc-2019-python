@@ -10,6 +10,7 @@ class Mde(Enum):
 	IMM = 1
 	REL = 2
 from itertools import chain, repeat, islice
+from collections import defaultdict
 from typing import Dict, Callable, List, Iterable, Optional, ClassVar
 class Ico:
 	liv: bool
@@ -18,11 +19,15 @@ class Ico:
 	mem: Dict[int, int]
 	cal: Callable[[], int]
 	log: List[int]
-	def __init__(self, prg: Iterable[int], cal: Callable[[], int]) -> None:
+	def __init__(
+		self,
+		prg: Iterable[int],
+		cal: Callable[[], int] = lambda: 0
+	) -> None:
 		self.liv = True
 		self.ptr = 0
 		self.reb = 0
-		self.mem = dict(enumerate(prg))
+		self.mem = defaultdict(int, enumerate(prg))
 		self.cal = cal
 		self.log = list()
 	def get(self, mde: Mde) -> int:
