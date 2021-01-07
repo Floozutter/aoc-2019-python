@@ -37,3 +37,12 @@ print(sum(
 	sum(map(abs, moon.pos)) * sum(map(abs, moon.vel))
 	for moon in state
 ))
+
+tort = step(start)
+hare = step(step(start))
+steps = 1
+while tort != hare:
+	tort = step(tort)
+	hare = step(step(hare))
+	steps += 1
+print(steps)
