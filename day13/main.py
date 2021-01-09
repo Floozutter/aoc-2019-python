@@ -85,6 +85,13 @@ class ArcadeCabinet:
 	ico: Ico
 	index: int
 	screen: Dict[Tuple[int, int], int]
+	tile_to_char: ClassVar[Dict[int, str]] = {
+		0: " ",
+		1: "|",
+		2: "#",
+		3: "_",
+		4: "o"
+	}
 	def __init__(self, program: Iterable[int]) -> None:
 		self.ico = Ico(program)
 		self.ico.cal = self
@@ -92,6 +99,15 @@ class ArcadeCabinet:
 		self.screen = defaultdict(int)
 	def __call__(self) -> int:
 		return 0
+	def __str__(self) -> str:
+		indexes, jndexes = zip(*self.screen)
+		return "\n".join(
+			"".join(
+				self.tile_to_char[self.screen[i, j]]
+				for j in range(min(jndexes), max(jndexes) + 1)
+			)
+			for i in range(min(indexes), max(indexes) + 1)
+		)
 	def consume_log(self):
 		while self.index < len(self.ico.log):
 			j, i, tile = self.ico.log[self.index: self.index + 3]
