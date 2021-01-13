@@ -85,6 +85,8 @@ class ArcadeCabinet:
 	ico: Ico
 	index: int
 	screen: Dict[Tuple[int, int], int]
+	score: int
+	auto: bool
 	tile_to_char: ClassVar[Dict[int, str]] = {
 		0: " ",
 		1: "|",
@@ -92,13 +94,24 @@ class ArcadeCabinet:
 		3: "_",
 		4: "o"
 	}
-	def __init__(self, program: Iterable[int]) -> None:
+	char_to_joystick: ClassVar[Dict[str, int]] = {
+		"a": -1,
+		"s": 0,
+		"d": 1
+	}
+	def __init__(self, program: Iterable[int], auto: bool = True) -> None:
 		self.ico = Ico(program)
 		self.ico.cal = self
 		self.index = 0
 		self.screen = defaultdict(int)
+		self.score = 0
+		self.auto = auto
 	def __call__(self) -> int:
-		return 0
+		self.consume_log()
+		if self.auto:
+			return 0
+		else:
+			return self.prompt_joystick()
 	def __str__(self) -> str:
 		indexes, jndexes = zip(*self.screen)
 		return "\n".join(
@@ -108,13 +121,25 @@ class ArcadeCabinet:
 			)
 			for i in range(min(indexes), max(indexes) + 1)
 		)
-	def consume_log(self):
+	def run(self) -> None:
+		self.ico.run()
+		self.consume_log()
+	def consume_log(self) -> None:
 		while self.index < len(self.ico.log):
-			j, i, tile = self.ico.log[self.index: self.index + 3]
-			self.screen[i, j] = tile
+			j, i, value = self.ico.log[self.index: self.index + 3]
+			if (j, i) == (-1, 0): self.score = value
+			else:                 self.screen[i, j] = value
 			self.index += 3
+	def prompt_joystick(self) -> int:
+		print(self)
+		msg = f"<{'|'.join(self.char_to_joystick)}>: "
+		while (j := self.char_to_joystick.get(input(msg))) is None: pass
+		return j
 
 demo = ArcadeCabinet(program)
-demo.ico.run()
-demo.consume_log()
+demo.run()
 print(sum(1 for tile in demo.screen.values() if tile == 2))
+
+game = ArcadeCabinet((2,) + program[1:], False)
+game.run()
+print(game.score)
